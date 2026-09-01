@@ -24,6 +24,11 @@ public class LLMController {
 
     @GetMapping
     public String hello(@RequestParam(name = "input", defaultValue = "AI编程趋势是什么") String input) {
-        return cache.computeIfAbsent(input, k -> chatClient.prompt(k).call().content());
+        String value = cache.get(input);
+        if (value == null) {
+            value = chatClient.prompt(input).call().content();
+            cache.putIfAbsent(input, value);
+        }
+        return value;
     }
 }
